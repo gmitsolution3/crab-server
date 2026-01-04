@@ -1,7 +1,7 @@
 import { client } from "../config/db";
 import { Product } from "../models/product.model";
 
-const productCollection = client
+export const productCollection = client
   .db("loweCommerce")
   .collection<Product>("products");
 
@@ -26,6 +26,8 @@ export async function getProduct(slug: string) {
   return await productCollection.findOne({ slug });
 }
 
+
+// it's not need for now 
 export async function productWithSku(sku: string) {
   return await productCollection.findOne({
     $or: [{ sku }, { "variants.sku": sku }],

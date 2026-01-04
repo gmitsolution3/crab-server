@@ -15,4 +15,5 @@ router.get("/:slug", getProductDetails);
 
 router.get("/", getProductBySku);
 
+
 export default router;
