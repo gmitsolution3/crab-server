@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import {
   createProduct,
+  DeleteService,
+  DraftService,
   getAllProductService,
   getProduct,
   productWithSku,
@@ -104,4 +106,45 @@ export const getProductBySku = async (req: Request, res: Response) => {
   }
 };
 
+export const getDraftProduct = async (req: Request, res: Response) => {
+  const query = { isDraft: true };
 
+  try {
+    const result = await DraftService(query);
+
+    if (result.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "No data found in the db" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Data fetched successfully",
+      data: result,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const getDeleteProduct = async (req: Request, res: Response) => {
+  const query = { isDelete: true };
+  try {
+    const result = await DeleteService(query);
+
+    if (result.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "No data found in the db" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Data fetched successfully",
+      data: result,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};

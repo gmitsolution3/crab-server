@@ -1,5 +1,8 @@
 import { Request, Response } from "express";
-import { CreateOrderService } from "../services/createOrder.service";
+import {
+  CreateOrderService,
+  getAllOrder,
+} from "../services/createOrder.service";
 
 export const CreateOrder = async (req: Request, res: Response) => {
   const orderData = req.body;
@@ -14,6 +17,38 @@ export const CreateOrder = async (req: Request, res: Response) => {
     const result = await CreateOrderService(orderData);
 
     res.status(201).send(result);
+  } catch (err: any) {
+    res.status(500).json({
+      success: false,
+      message: "something is wrong",
+      data: err,
+    });
+  }
+};
+
+export const orderController = async (req: Request, res: Response) => {
+
+
+  console.log("kik")
+
+  try {
+    const result = await getAllOrder();
+
+    console.log({result:result})
+
+    if (result.length === 0) {
+      res.status(404).json({
+        success: false,
+        message: "No Order found in db",
+        data: result,
+      });
+    }
+
+    res.status(200).json({
+      success: false,
+      message: "All data found",
+      data: result,
+    });
   } catch (err: any) {
     res.status(500).json({
       success: false,

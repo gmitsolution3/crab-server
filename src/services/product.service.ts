@@ -10,7 +10,6 @@ export async function createProduct(product: Product) {
   return result;
 }
 
-
 export async function getAllProductService() {
   const query = { isDraft: false, featured: false, isDelete: false };
 
@@ -26,12 +25,27 @@ export async function getProduct(slug: string) {
   return await productCollection.findOne({ slug });
 }
 
-
-// it's not need for now 
+// it's not need for now
 export async function productWithSku(sku: string) {
   return await productCollection.findOne({
     $or: [{ sku }, { "variants.sku": sku }],
     isDelete: false,
-    isDraft: false
+    isDraft: false,
   });
+}
+
+// get all draft product
+export async function DraftService(query: { isDraft: boolean }) {
+  const result = await productCollection
+    .find(query)
+    .sort({ createdAt: -1 })
+    .toArray();
+
+    return result;
+}
+
+
+export async function DeleteService(query:{isDelete: boolean}) {
+  const result = await productCollection.find(query).toArray();
+  return result
 }
