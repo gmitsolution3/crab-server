@@ -6,7 +6,9 @@ import orderRouter from "./routes/createOrder.route"
 import facebookRoute from "./routes/facebook.route"
 import bannerRoute from "./routes/banner.route"
 import socialRoute from "./routes/social.route"
+import authRouter from "./routes/auth.route"
 import cors from "cors";
+import cookieParser from "cookie-parser"
 
 const app = express();
 app.use(express.json());
@@ -26,6 +28,13 @@ app.use("/facebook-setting",facebookRoute);
 app.use("/banner", bannerRoute);
 
 app.use("/social", socialRoute);
+
+// auth route
+
+app.use("/api/v1/auth",authRouter)
+
+app.use(cookieParser());
+
 
 
 
