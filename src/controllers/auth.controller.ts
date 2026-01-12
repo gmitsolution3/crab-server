@@ -57,7 +57,6 @@ export const logInController = async (req: Request, res: Response) => {
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 3 * 24 * 60 * 60 * 1000,
-      domain: ".vercel.app",
     });
 
     res.status(200).json({
