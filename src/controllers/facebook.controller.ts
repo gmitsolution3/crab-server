@@ -36,6 +36,10 @@ export const saveFacebookCredentials = async (req: Request, res: Response) => {
 };
 
 export const getFacebookCredentials = async (req: Request, res: Response) => {
+
+  console.log("clicked")
+
+
   const result = await getFacebookCredentialsService();
 
   if (!result) {
