@@ -7,6 +7,7 @@ import {
   getFeaturedProduct,
   getProductBySku,
   getProductDetails,
+  getTopSellingProduct,
 } from "../controllers/product.controller";
 
 const router = Router();
@@ -17,6 +18,7 @@ router.get("/", getProductBySku);
 router.get("/featured", getFeaturedProduct);
 router.get("/draft", getDraftProduct);
 router.get("/delete-product", getDeleteProduct);
+router.get("/get-top-selling-product", getTopSellingProduct);
 router.get("/:slug", getProductDetails);
 
 export default router;

@@ -193,8 +193,7 @@ export async function getSingleOrder(query: any) {
 }
 
 export const updateSingleOrder = async (query: any, payload: any) => {
-  console.log({ payload: payload, query: query });
-
+ 
   const { _id, ...updateData } = payload;
 
   return await createOrderCollection.updateOne(query, {
@@ -385,4 +384,45 @@ export async function getDashboardAnalytics() {
     totalProduct: totalProduct,
     productAnalytics: productAnalytics,
   };
+}
+
+
+export const topSellingProduct = async()=>{
+  const topSellingProducts = await createOrderCollection
+    .aggregate([
+      { $unwind: "$products" },
+      {
+        $group: {
+          _id: "$products.productId",
+          totalQuantitySold: { $sum: "$products.quantity" },
+          totalSalesAmount: { $sum: "$products.subtotal" },
+        },
+      },
+      { $sort: { totalQuantitySold: -1 } },
+      { $limit: 10 },
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id",
+          foreignField: "_id",
+          as: "product",
+        },
+      },
+      { $unwind: "$product" },
+      {
+        $match: {
+          "product.isDelete": false,
+          "product.isDraft": false,
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: "$product",
+        },
+      },
+    ])
+    .toArray();
+
+
+    return topSellingProducts;
 }

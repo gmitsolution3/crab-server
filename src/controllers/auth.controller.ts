@@ -93,16 +93,7 @@ export const SignUpController = async (req: Request, res: Response) => {
       phone,
     } = req.body;
 
-    console.log(
-      address,
-      agreeTerms,
-      confirmPassword,
-      email,
-      firstName,
-      lastName,
-      password,
-      phone
-    );
+   
 
     if (
       !address ||
@@ -118,7 +109,7 @@ export const SignUpController = async (req: Request, res: Response) => {
       });
     }
 
-    console.log("after checking input field");
+    
 
     if (password !== confirmPassword) {
       return res.status(400).json({
@@ -127,11 +118,10 @@ export const SignUpController = async (req: Request, res: Response) => {
       });
     }
 
-    console.log("before is existing");
 
     const isExistingUser = await findByEmail(email);
 
-    console.log("after is existing");
+  
 
     if (isExistingUser) {
       return res.status(400).json({
@@ -140,11 +130,11 @@ export const SignUpController = async (req: Request, res: Response) => {
       });
     }
 
-    console.log({ isExistingUser: isExistingUser });
+   
 
     const hashedPassword = await bcrypt.hash(confirmPassword, 12);
 
-    console.log({ hashedPassword: hashedPassword });
+   
 
     const payload = {
       firstName: firstName,
@@ -159,7 +149,7 @@ export const SignUpController = async (req: Request, res: Response) => {
       role: "customer",
     };
 
-    console.log(payload);
+    
 
     const result = await Createuser(payload);
 
@@ -219,7 +209,6 @@ export const getMeController = async (req: Request, res: Response) => {
     };
 
 
-    console.log(sendingPayload)
 
 
 

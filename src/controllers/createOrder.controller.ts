@@ -18,7 +18,7 @@ export const CreateOrder = async (req: Request, res: Response) => {
     });
   }
 
-  console.log({orderData:orderData})
+ 
 
   try {
     const result = await CreateOrderService(orderData);
@@ -66,7 +66,7 @@ export const getOrderById = async (req: Request, res: Response) => {
 
   const query = { _id: new ObjectId(id) };
 
-  console.log("get into wrong place")
+ 
 
   try {
     const response = await getSingleOrder(query);
@@ -97,7 +97,7 @@ export const updateOrder = async (req: Request, res: Response) => {
   const payload = req.body;
 
 
-  // console.log({payload: payload});
+ 
 
   const query = { _id: new ObjectId(id) };
 
@@ -112,7 +112,7 @@ export const updateOrder = async (req: Request, res: Response) => {
 
     const result = await updateSingleOrder(query, payload);
 
-    console.log({resultFromServer: result});
+    
 
     if (result.matchedCount === 0) {
       return res.status(404).json({

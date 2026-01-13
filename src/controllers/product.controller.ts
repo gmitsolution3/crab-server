@@ -8,6 +8,7 @@ import {
   getProduct,
   productWithSku,
 } from "../services/product.service";
+import { topSellingProduct } from "../services/createOrder.service";
 
 export const addProduct = async (req: Request, res: Response) => {
   const productData = req.body;
@@ -113,7 +114,7 @@ export const getDraftProduct = async (req: Request, res: Response) => {
   try {
     const result = await DraftService(query);
 
-    console.log(result)
+ 
 
     if (result.length === 0) {
       return res
@@ -177,3 +178,31 @@ export const getFeaturedProduct = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: err.message, error: err });
   }
 };
+
+
+export const getTopSellingProduct = async(req:Request, res:Response)=>{
+  try{
+    const result = await topSellingProduct();
+
+    if(result.length===0){
+      return res.status(404).json({
+        success: false,
+        message: "Don't any any top selling product",
+      })
+    }
+
+
+    res.status(200).json({
+      success: true,
+      message: "Find top selling product",
+      data: result
+    })
+
+  }catch(err:any){
+    res.status(500).json({
+      success: false,
+      message: err.message,
+      error: err
+    })
+  }
+}

@@ -37,7 +37,7 @@ export const saveFacebookCredentials = async (req: Request, res: Response) => {
 
 export const getFacebookCredentials = async (req: Request, res: Response) => {
 
-  console.log("clicked")
+
 
 
   const result = await getFacebookCredentialsService();
@@ -48,7 +48,6 @@ export const getFacebookCredentials = async (req: Request, res: Response) => {
       .json({ success: false, message: "No credentials found" });
   }
 
-  console.log(result);
   res
     .status(200)
     .json({ success: true, message: "Pixel Credential founded", data: result });
