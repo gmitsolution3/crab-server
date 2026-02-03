@@ -26,38 +26,45 @@ export async function CreateOrderService(payload: any) {
 
   //  Merge frontend cart with DB data & validate price / stock
   const finalProducts = payload.products.map((cartItem: any) => {
-    const productDB = productsFromDB.find((p) => p.slug === cartItem.slug);
+    const productDB = productsFromDB.find(
+      (p) => p.slug === cartItem.slug,
+    );
     if (!productDB) {
-      return { success: false, message: `Product not found: ${cartItem.slug}` };
+      return {
+        success: false,
+        message: `Product not found: ${cartItem.slug}`,
+      };
     }
 
-   const variant = productDB.variants.find(
-     (v: any) => v.sku === cartItem.variant.sku
-   );
+    const variant = productDB.variants.find(
+      (v: any) => v.sku === cartItem.variant.sku,
+    );
 
     if (!variant) {
-
       return {
         success: false,
         message: `Variant not found for ${productDB.title}`,
       };
     }
 
-
     // Validate stock
-    const availableStock = parseInt(productDB.stockQuantity as string, 10);
+    const availableStock = parseInt(
+      productDB.stockQuantity as string,
+      10,
+    );
     if (cartItem.quantity > availableStock) {
-       return {
-         success: false,
-         message: `Not enough stock for product: ${productDB.title}`,
-       };
+      return {
+        success: false,
+        message: `Not enough stock for product: ${productDB.title}`,
+      };
     }
 
     // Calculate price after discount
     let basePrice = parseFloat(productDB.basePrice);
     if (productDB.discount?.type === "percentage") {
       basePrice =
-        basePrice - (basePrice * parseFloat(productDB.discount.value)) / 100;
+        basePrice -
+        (basePrice * parseFloat(productDB.discount.value)) / 100;
     }
 
     return {
@@ -75,10 +82,11 @@ export async function CreateOrderService(payload: any) {
   // Calculate order totals
   const subtotal = finalProducts.reduce(
     (sum: any, p: any) => sum + p.subtotal,
-    0
+    0,
   );
 
-  const deliveryCharge = payload.deliveryMethod === "inside" ? 80 : 100;
+  const deliveryCharge =
+    payload.deliveryMethod === "inside" ? 80 : 100;
   const grandTotal = subtotal + deliveryCharge;
 
   //  Prepare final order object
@@ -123,7 +131,7 @@ export async function CreateOrderService(payload: any) {
         $inc: {
           "variants.$.stock": -item.quantity,
         },
-      }
+      },
     );
   }
 
@@ -138,7 +146,8 @@ export async function CreateOrderService(payload: any) {
             event_time: Math.floor(Date.now() / 1000),
             action_source: "website",
             event_source_url:
-              payload.sourceUrl || "https://gm-commerce.vercel.app/checkout",
+              payload.sourceUrl ||
+              "https://gm-commerce.vercel.app/checkout",
             user_data: {
               em: payload.customerInfo.email
                 ? hashSha256(payload.customerInfo.email)
@@ -159,7 +168,7 @@ export async function CreateOrderService(payload: any) {
 
       await axios.post(
         `https://graph.facebook.com/v17.0/${fbCreds.fbPixelId}/events?access_token=${fbCreds._internal.fbCapiToken}`,
-        fbPayload
+        fbPayload,
       );
       console.log("Facebook CAPI Purchase sent successfully");
     }
@@ -169,7 +178,7 @@ export async function CreateOrderService(payload: any) {
 
   return {
     success: true,
-    orderId:  orderId,
+    orderId: orderId,
     grandTotal,
     message: "Order created successfully",
     paymentMethod: payload.paymentMethod,
@@ -193,7 +202,6 @@ export async function getSingleOrder(query: any) {
 }
 
 export const updateSingleOrder = async (query: any, payload: any) => {
- 
   const { _id, ...updateData } = payload;
 
   return await createOrderCollection.updateOne(query, {
@@ -221,25 +229,39 @@ export async function getHistory(query: any) {
 
           // 🔹 Order Status Counts
           pending: {
-            $sum: { $cond: [{ $eq: ["$orderStatus", "pending"] }, 1, 0] },
+            $sum: {
+              $cond: [{ $eq: ["$orderStatus", "pending"] }, 1, 0],
+            },
           },
           processing: {
-            $sum: { $cond: [{ $eq: ["$orderStatus", "processing"] }, 1, 0] },
+            $sum: {
+              $cond: [{ $eq: ["$orderStatus", "processing"] }, 1, 0],
+            },
           },
           courier: {
-            $sum: { $cond: [{ $eq: ["$orderStatus", "courier"] }, 1, 0] },
+            $sum: {
+              $cond: [{ $eq: ["$orderStatus", "courier"] }, 1, 0],
+            },
           },
           onHold: {
-            $sum: { $cond: [{ $eq: ["$orderStatus", "on-hold"] }, 1, 0] },
+            $sum: {
+              $cond: [{ $eq: ["$orderStatus", "on-hold"] }, 1, 0],
+            },
           },
           cancelled: {
-            $sum: { $cond: [{ $eq: ["$orderStatus", "cancelled"] }, 1, 0] },
+            $sum: {
+              $cond: [{ $eq: ["$orderStatus", "cancelled"] }, 1, 0],
+            },
           },
           returned: {
-            $sum: { $cond: [{ $eq: ["$orderStatus", "return"] }, 1, 0] },
+            $sum: {
+              $cond: [{ $eq: ["$orderStatus", "return"] }, 1, 0],
+            },
           },
           completed: {
-            $sum: { $cond: [{ $eq: ["$orderStatus", "completed"] }, 1, 0] },
+            $sum: {
+              $cond: [{ $eq: ["$orderStatus", "completed"] }, 1, 0],
+            },
           },
 
           // 🔹 Payment Summary
@@ -251,15 +273,25 @@ export async function getHistory(query: any) {
 
           totalPaidAmount: {
             $sum: {
-              $cond: [{ $eq: ["$paymentStatus", "success"] }, "$grandTotal", 0],
+              $cond: [
+                { $eq: ["$paymentStatus", "success"] },
+                "$grandTotal",
+                0,
+              ],
             },
           },
           totalDueOrders: {
-            $sum: { $cond: [{ $eq: ["$paymentStatus", "pending"] }, 1, 0] },
+            $sum: {
+              $cond: [{ $eq: ["$paymentStatus", "pending"] }, 1, 0],
+            },
           },
           totalDueAmount: {
             $sum: {
-              $cond: [{ $eq: ["$paymentStatus", "pending"] }, "$grandTotal", 0],
+              $cond: [
+                { $eq: ["$paymentStatus", "pending"] },
+                "$grandTotal",
+                0,
+              ],
             },
           },
           userInfo: { $first: "$customerInfo" },
@@ -290,25 +322,39 @@ export async function getDashboardAnalytics() {
 
           //  Order Status Counts
           pending: {
-            $sum: { $cond: [{ $eq: ["$orderStatus", "pending"] }, 1, 0] },
+            $sum: {
+              $cond: [{ $eq: ["$orderStatus", "pending"] }, 1, 0],
+            },
           },
           processing: {
-            $sum: { $cond: [{ $eq: ["$orderStatus", "processing"] }, 1, 0] },
+            $sum: {
+              $cond: [{ $eq: ["$orderStatus", "processing"] }, 1, 0],
+            },
           },
           courier: {
-            $sum: { $cond: [{ $eq: ["$orderStatus", "courier"] }, 1, 0] },
+            $sum: {
+              $cond: [{ $eq: ["$orderStatus", "courier"] }, 1, 0],
+            },
           },
           onHold: {
-            $sum: { $cond: [{ $eq: ["$orderStatus", "on-hold"] }, 1, 0] },
+            $sum: {
+              $cond: [{ $eq: ["$orderStatus", "on-hold"] }, 1, 0],
+            },
           },
           cancelled: {
-            $sum: { $cond: [{ $eq: ["$orderStatus", "cancelled"] }, 1, 0] },
+            $sum: {
+              $cond: [{ $eq: ["$orderStatus", "cancelled"] }, 1, 0],
+            },
           },
           returned: {
-            $sum: { $cond: [{ $eq: ["$orderStatus", "return"] }, 1, 0] },
+            $sum: {
+              $cond: [{ $eq: ["$orderStatus", "return"] }, 1, 0],
+            },
           },
           completed: {
-            $sum: { $cond: [{ $eq: ["$orderStatus", "completed"] }, 1, 0] },
+            $sum: {
+              $cond: [{ $eq: ["$orderStatus", "completed"] }, 1, 0],
+            },
           },
 
           //  Payment Summary
@@ -320,15 +366,25 @@ export async function getDashboardAnalytics() {
 
           totalPaidAmount: {
             $sum: {
-              $cond: [{ $eq: ["$paymentStatus", "success"] }, "$grandTotal", 0],
+              $cond: [
+                { $eq: ["$paymentStatus", "success"] },
+                "$grandTotal",
+                0,
+              ],
             },
           },
           totalDueOrders: {
-            $sum: { $cond: [{ $eq: ["$paymentStatus", "pending"] }, 1, 0] },
+            $sum: {
+              $cond: [{ $eq: ["$paymentStatus", "pending"] }, 1, 0],
+            },
           },
           totalDueAmount: {
             $sum: {
-              $cond: [{ $eq: ["$paymentStatus", "pending"] }, "$grandTotal", 0],
+              $cond: [
+                { $eq: ["$paymentStatus", "pending"] },
+                "$grandTotal",
+                0,
+              ],
             },
           },
 
@@ -386,8 +442,7 @@ export async function getDashboardAnalytics() {
   };
 }
 
-
-export const topSellingProduct = async()=>{
+export const topSellingProduct = async () => {
   const topSellingProducts = await createOrderCollection
     .aggregate([
       { $unwind: "$products" },
@@ -423,17 +478,10 @@ export const topSellingProduct = async()=>{
     ])
     .toArray();
 
-
-    return topSellingProducts;
-}
-
-
-
-export const deleteOrderServer = async(query:any) => {
-  const deleteOrder = await createOrderCollection.deleteOne(query)
-  return deleteOrder;
+  return topSellingProducts;
 };
 
-
-
-
+export const deleteOrderServer = async (query: any) => {
+  const deleteOrder = await createOrderCollection.deleteOne(query);
+  return deleteOrder;
+};
