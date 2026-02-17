@@ -10,6 +10,7 @@ import authRouter from "./routes/auth.route";
 import marqueeRoute from "./routes/marquee.route";
 import courierRoute from "./routes/courier.route";
 import ipRouter from "./routes/getIp.route";
+import statisticsRoute from "./routes/statistics.route";
 import otpRouter from "./routes/otp.route";
 import paymentRoute from "./routes/payment.route";
 import cors from "cors";
@@ -65,6 +66,9 @@ app.use("/api/otp", otpRouter);
 
 // payment route
 app.use("/payment", paymentRoute);
+
+// statistics route
+app.use("/api/v1/statistics", statisticsRoute);
 
 app.get("/", (req, res) => {
   res.send("server is running");
