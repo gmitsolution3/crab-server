@@ -58,6 +58,8 @@ export async function CreateOrderService(payload: any) {
         v.color.toLowerCase() === cartItem.color.toLowerCase(),
     );
 
+    console.log({ selectedVariant });
+
     const variant = selectedVariant?.sizes?.find(
       (size: any) =>
         size.size.toLowerCase() === cartItem.size.toLowerCase(),
@@ -81,14 +83,17 @@ export async function CreateOrderService(payload: any) {
     }
 
     // Calculate price after discount
-    let basePrice = parseFloat(productDB.basePrice);
+    let basePrice =
+      selectedVariant.price !== ""
+        ? parseFloat(selectedVariant.price)
+        : parseFloat(productDB.basePrice);
+
     if (productDB.discount?.type === "percentage") {
       basePrice =
         basePrice -
         (basePrice * parseFloat(productDB.discount.value)) / 100;
     } else if (productDB.discount?.type === "flat") {
-      // todo: handle flat discount here later
-      // basePrice = basePrice - parseFloat(productDB.discount.value);
+      basePrice = basePrice - parseFloat(productDB.discount.value);
     }
 
     return {
@@ -102,8 +107,6 @@ export async function CreateOrderService(payload: any) {
       variant: variant,
     };
   });
-
-  console.log(finalProducts);
 
   // Calculate order totals
   const subtotal = finalProducts.reduce(
