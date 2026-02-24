@@ -45,6 +45,7 @@ export async function CreateOrderService(payload: any) {
     const productDB = productsFromDB.find(
       (p) => p.slug === cartItem.slug,
     );
+
     if (!productDB) {
       return {
         success: false,
@@ -52,8 +53,14 @@ export async function CreateOrderService(payload: any) {
       };
     }
 
-    const variant = productDB.variants.find(
-      (v: any) => v.sku === cartItem.variant.sku,
+    const selectedVariant: any = productDB?.variants?.find(
+      (v: any) =>
+        v.color.toLowerCase() === cartItem.color.toLowerCase(),
+    );
+
+    const variant = selectedVariant?.sizes?.find(
+      (size: any) =>
+        size.size.toLowerCase() === cartItem.size.toLowerCase(),
     );
 
     if (!variant) {
@@ -64,10 +71,8 @@ export async function CreateOrderService(payload: any) {
     }
 
     // Validate stock
-    const availableStock = parseInt(
-      productDB.stockQuantity as string,
-      10,
-    );
+    const availableStock = parseInt(variant.stock as string, 10);
+
     if (cartItem.quantity > availableStock) {
       return {
         success: false,
@@ -81,6 +86,9 @@ export async function CreateOrderService(payload: any) {
       basePrice =
         basePrice -
         (basePrice * parseFloat(productDB.discount.value)) / 100;
+    } else if (productDB.discount?.type === "flat") {
+      // todo: handle flat discount here later
+      // basePrice = basePrice - parseFloat(productDB.discount.value);
     }
 
     return {
@@ -91,9 +99,11 @@ export async function CreateOrderService(payload: any) {
       quantity: cartItem.quantity,
       price: basePrice,
       subtotal: basePrice * cartItem.quantity,
-      variant: cartItem.variant,
+      variant: variant,
     };
   });
+
+  console.log(finalProducts);
 
   // Calculate order totals
   const subtotal = finalProducts.reduce(
@@ -165,12 +175,18 @@ export async function CreateOrderService(payload: any) {
     await productCollection.updateOne(
       {
         _id: item.productId,
-        "variants.sku": item.sku,
+        "variants.sizes.sku": item.sku,
       },
       {
         $inc: {
-          "variants.$.stock": -item.quantity,
+          "variants.$[variant].sizes.$[size].stock": -item.quantity,
         },
+      },
+      {
+        arrayFilters: [
+          { "variant.sizes.sku": item.sku },
+          { "size.sku": item.sku },
+        ],
       },
     );
   }

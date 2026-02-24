@@ -23,15 +23,13 @@ export const CreateOrder = async (req: Request, res: Response) => {
     });
   }
 
-  const finalPayload = {ip, ...orderData}
+  const finalPayload = { ip, ...orderData };
 
   try {
     const result = await CreateOrderService(finalPayload);
 
-
-    if(result.status === "FRAUD" || result.status === "SUSPICIOUS"){
-
-      const otpStore = await storeOTPForOrder(result)
+    if (result.status === "FRAUD" || result.status === "SUSPICIOUS") {
+      const otpStore = await storeOTPForOrder(result);
 
       if (!otpStore.success) {
         return res.status(500).json({
