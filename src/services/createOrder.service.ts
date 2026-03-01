@@ -106,8 +106,6 @@ export async function CreateOrderService(payload: any) {
     };
   });
 
-  console.log(payload);
-
   // Calculate order totals
   const subtotal = finalProducts.reduce(
     (sum: any, p: any) => sum + p.subtotal,
@@ -287,6 +285,42 @@ export async function CreateOrderService(payload: any) {
     message: "Order created successfully",
     paymentMethod: payload.paymentMethod,
   };
+}
+
+export async function addToCartPixelRequest(payload: any) {
+  try {
+    const fbCreds = await getFacebookCredentialsService();
+
+    if (fbCreds?.isEnabled && fbCreds._internal.fbCapiToken) {
+      const fbPayload = {
+        data: [
+          {
+            event_name: "AddToCart",
+            event_time: Math.floor(Date.now() / 1000),
+            action_source: "website",
+            event_source_url:
+              payload.sourceUrl ||
+              "https://gm-commerce.vercel.app/checkout",
+            custom_data: {
+              content_ids: payload.content_ids,
+              content_type: "product",
+              content_name: payload.title,
+              value: payload.value,
+              currency: "BDT",
+            },
+          },
+        ],
+      };
+
+      await axios.post(
+        `https://graph.facebook.com/v17.0/${fbCreds.fbPixelId}/events?access_token=${fbCreds._internal.fbCapiToken}`,
+        fbPayload,
+      );
+      console.log("Facebook CAPI Purchase sent successfully");
+    }
+  } catch (err) {
+    console.error("Facebook CAPI error:", err);
+  }
 }
 
 // get all order

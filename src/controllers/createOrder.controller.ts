@@ -9,6 +9,7 @@ import {
   storeOTPForOrder,
   updateSingleOrder,
   getOrderForUserService,
+  addToCartPixelRequest,
 } from "../services/createOrder.service";
 import { ObjectId } from "mongodb";
 import { sendEmail } from "../helper/nodemailerFun";
@@ -56,6 +57,24 @@ export const CreateOrder = async (req: Request, res: Response) => {
     });
   }
 };
+
+export async function addToCartPixelRequestController(
+  req: Request,
+  res: Response,
+) {
+  try {
+    const payload = req.body;
+
+    const result = await addToCartPixelRequest(payload);
+    res.status(201).send(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "something went wrong!",
+      data: error,
+    });
+  }
+}
 
 export const orderController = async (
   req: Request,
