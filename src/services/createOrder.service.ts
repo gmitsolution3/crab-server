@@ -143,17 +143,17 @@ export async function CreateOrderService(payload: any) {
     customerIp: payload.ip,
   };
 
-  const [orderResult, locationResult] = await Promise.all([
+  /* const [orderResult, locationResult] = await Promise.all([
     visitorLog.findOne({ ip: (payload as any).ip }),
     userLocation.findOne({ ip: (payload as any).ip }),
-  ]);
+  ]); */
 
-  const riskScore = calculateRisk({
+  /* const riskScore = calculateRisk({
     ...orderResult,
     ...locationResult,
-  });
+  }); */
 
-  const finalORderData = {
+  /* const finalORderData = {
     ...orderData,
     riskScore,
     FakeOrderStatus:
@@ -163,11 +163,11 @@ export async function CreateOrderService(payload: any) {
           ? "SUSPICIOUS"
           : "LEGIT",
     isEmailVerified: riskScore >= 40 ? false : true,
-  };
+  }; */
 
   // Insert order into DB
   const result =
-    await createOrderCollection.insertOne(finalORderData);
+    await createOrderCollection.insertOne(orderData);
 
   const orderId = result.insertedId;
 
@@ -192,12 +192,12 @@ export async function CreateOrderService(payload: any) {
     );
   }
 
-  const updateRiskScore = await addFraudScoreService({
+  /* const updateRiskScore = await addFraudScoreService({
     ip: payload.ip,
     riskScore: riskScore,
-  });
+  }); */
 
-  if (riskScore >= 60) {
+  /* if (riskScore >= 60) {
     return {
       status: "FRAUD",
       requireEmailOTP: true,
@@ -215,7 +215,7 @@ export async function CreateOrderService(payload: any) {
       email: payload.customerInfo.email,
       riskScore,
     };
-  }
+  } */
 
   try {
     const fbCreds = await getFacebookCredentialsService();
