@@ -29,25 +29,6 @@ export const CreateOrder = async (req: Request, res: Response) => {
   try {
     const result = await CreateOrderService(finalPayload);
 
-    if (result.status === "FRAUD" || result.status === "SUSPICIOUS") {
-      const otpStore = await storeOTPForOrder(result);
-
-      if (!otpStore.success) {
-        return res.status(500).json({
-          success: false,
-          message: "Failed to generate OTP",
-        });
-      }
-
-      return res.status(200).json({
-        success: false,
-        message: "Need to verify email",
-        data: otpStore,
-        orderId: result.orderId,
-        isRedirect: true,
-      });
-    }
-
     res.status(201).send(result);
   } catch (err: any) {
     res.status(500).json({
