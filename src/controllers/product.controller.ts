@@ -27,7 +27,9 @@ export const addProduct = async (req: Request, res: Response) => {
       });
     }
 
-    const isExistedProductSlug = await existingProductSlug(productData.slug);
+    const isExistedProductSlug = await existingProductSlug(
+      productData.slug,
+    );
 
     if (isExistedProductSlug) {
       return res.status(500).json({
@@ -63,14 +65,18 @@ export const getAllProduct = async (req: Request, res: Response) => {
   }
 };
 
-export const getProductDetails = async (req: Request, res: Response) => {
+export const getProductDetails = async (
+  req: Request,
+  res: Response,
+) => {
   try {
     const slug = req.params.slug;
 
     if (!slug) {
       res.status(400).json({
         success: false,
-        message: "search parameter is missing. Try with search parameter",
+        message:
+          "search parameter is missing. Try with search parameter",
       });
       return;
     }
@@ -93,7 +99,10 @@ export const getProductDetails = async (req: Request, res: Response) => {
   }
 };
 
-export const getProductBySku = async (req: Request, res: Response) => {
+export const getProductBySku = async (
+  req: Request,
+  res: Response,
+) => {
   try {
     const { sku } = req.query;
 
@@ -123,7 +132,10 @@ export const getProductBySku = async (req: Request, res: Response) => {
   }
 };
 
-export const getDraftProduct = async (req: Request, res: Response) => {
+export const getDraftProduct = async (
+  req: Request,
+  res: Response,
+) => {
   const query = { isDraft: true };
 
   try {
@@ -145,7 +157,10 @@ export const getDraftProduct = async (req: Request, res: Response) => {
   }
 };
 
-export const getDeleteProduct = async (req: Request, res: Response) => {
+export const getDeleteProduct = async (
+  req: Request,
+  res: Response,
+) => {
   const query = { isDelete: true };
   try {
     const result = await DeleteService(query);
@@ -190,11 +205,16 @@ export const permanentlyDeleteProductController = async (
       data: result,
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message, err: err });
+    res
+      .status(500)
+      .json({ success: false, message: err.message, err: err });
   }
 };
 
-export const restoreProductController = async (req: Request, res: Response) => {
+export const restoreProductController = async (
+  req: Request,
+  res: Response,
+) => {
   const { id } = req.params;
 
   console.log({ id: id });
@@ -203,7 +223,6 @@ export const restoreProductController = async (req: Request, res: Response) => {
     const query = { _id: new ObjectId(id) };
 
     const result = await restoreProductService(query);
-
 
     if (!result) {
       return res.status(404).json({
@@ -218,11 +237,16 @@ export const restoreProductController = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message, err: err });
+    res
+      .status(500)
+      .json({ success: false, message: err.message, err: err });
   }
 };
 
-export const getFeaturedProduct = async (req: Request, res: Response) => {
+export const getFeaturedProduct = async (
+  req: Request,
+  res: Response,
+) => {
   const query = { isDraft: false, featured: true, isDelete: false };
 
   try {
@@ -241,11 +265,16 @@ export const getFeaturedProduct = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message, error: err });
+    res
+      .status(500)
+      .json({ success: false, message: err.message, error: err });
   }
 };
 
-export const getTopSellingProduct = async (req: Request, res: Response) => {
+export const getTopSellingProduct = async (
+  req: Request,
+  res: Response,
+) => {
   try {
     const result = await topSellingProduct();
 
@@ -270,7 +299,10 @@ export const getTopSellingProduct = async (req: Request, res: Response) => {
   }
 };
 
-export const primaryProductDelete = async (req: Request, res: Response) => {
+export const primaryProductDelete = async (
+  req: Request,
+  res: Response,
+) => {
   try {
     const { id } = req.params;
 
@@ -282,7 +314,10 @@ export const primaryProductDelete = async (req: Request, res: Response) => {
 
     const query = { _id: new ObjectId(id) };
 
-    const updatedProduct = await primaryDeleteProductService(query);
+    const updatedProduct = await primaryDeleteProductService(
+      query,
+      req.body.user,
+    );
 
     if (!updatedProduct) {
       return res.status(404).json({
@@ -306,7 +341,10 @@ export const primaryProductDelete = async (req: Request, res: Response) => {
   }
 };
 
-export const productUpdateController = async (req: Request, res: Response) => {
+export const productUpdateController = async (
+  req: Request,
+  res: Response,
+) => {
   const id = req.params.id;
   const data = req.body;
 

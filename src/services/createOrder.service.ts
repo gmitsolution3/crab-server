@@ -22,6 +22,10 @@ const otpCollection = client
   .db("loweCommerce")
   .collection("OTPStore");
 
+export const adminActivityCollection = client
+  .db("loweCommerce")
+  .collection("adminActivity");
+
 const usersCollection = client.db("loweCommerce").collection("users");
 
 // created order
@@ -106,7 +110,7 @@ export async function CreateOrderService(payload: any) {
     };
   });
 
-  const errorItem = finalProducts.find((item: any) => !item.success);
+  const errorItem = finalProducts.find((item: any) => item.success === false);
 
   if (errorItem) {
     return {
@@ -359,6 +363,14 @@ export async function getSingleOrder(query: any) {
 
 export const updateSingleOrder = async (query: any, payload: any) => {
   const { _id, ...updateData } = payload;
+
+  console.log(updateData);
+
+  await adminActivityCollection.insertOne({
+    ...updateData.user,
+    activityOn: "order",
+    activityType: "update",
+  });
 
   return await createOrderCollection.updateOne(query, {
     $set: updateData,
@@ -664,8 +676,15 @@ export const topSellingProduct = async () => {
   return topSellingProducts;
 };
 
-export const deleteOrderServer = async (query: any) => {
+export const deleteOrderServer = async (query: any, payload: any) => {
   const deleteOrder = await createOrderCollection.deleteOne(query);
+
+  await adminActivityCollection.insertOne({
+    ...payload.user,
+    activityOn: "order",
+    activityType: "delete",
+  });
+
   return deleteOrder;
 };
 

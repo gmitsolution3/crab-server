@@ -249,7 +249,7 @@ export const deleteOrderController = async (
 
     const query = { _id: new ObjectId(id) };
 
-    const result = await deleteOrderServer(query);
+    const result = await deleteOrderServer(query, req.body);
 
     if (!result) {
       res.status(404).json({

@@ -6,6 +6,10 @@ export const productCollection = client
   .db("loweCommerce")
   .collection<Product>("products");
 
+export const adminActivityCollection = client
+  .db("loweCommerce")
+  .collection<Product>("adminActivity");
+
 export async function createProduct(product: Product) {
   const result = await productCollection.insertOne(product);
   return result;
@@ -80,20 +84,40 @@ export async function getFeatureProdct(query: {
   return result;
 }
 
-export const primaryDeleteProductService = async (query: any) => {
+export const primaryDeleteProductService = async (
+  query: any,
+  user: any,
+) => {
   const result = await productCollection.findOneAndUpdate(
     query,
     { $set: { isDelete: true, deletedAt: new Date() } },
     { returnDocument: "after" },
   );
+
+  await adminActivityCollection.insertOne({
+    ...user,
+    activityOn: "product",
+    activityType: "delete",
+  });
+
   return result;
 };
 
-export const productUpdateService = async (query: any, payload: any) => {
+export const productUpdateService = async (
+  query: any,
+  payload: any,
+) => {
   const result = await productCollection.findOneAndUpdate(
     query,
     { $set: payload },
     { returnDocument: "after" },
   );
+
+  await adminActivityCollection.insertOne({
+    ...payload.user,
+    activityOn: "product",
+    activityType: "update",
+  });
+
   return result;
 };
