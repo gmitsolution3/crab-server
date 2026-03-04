@@ -113,7 +113,7 @@ export async function CreateOrderService(payload: any) {
   );
 
   const deliveryCharge =
-    payload.deliveryMethod === "inside" ? 80 : 100;
+    payload.deliveryMethod === "inside" ? 80 : 130;
   const grandTotal = subtotal + deliveryCharge;
 
   //  Prepare final order object
