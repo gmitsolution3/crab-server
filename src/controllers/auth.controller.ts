@@ -3,14 +3,20 @@ import { Createuser, findByEmail } from "../services/auth.service";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-export const logInController = async (req: Request, res: Response) => {
+export const logInController = async (
+  req: Request,
+  res: Response,
+) => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
       return res
         .status(500)
-        .json({ success: false, message: "Email and password is require" });
+        .json({
+          success: false,
+          message: "Email and password is require",
+        });
     }
 
     const isExistingUser = await findByEmail(email);
@@ -22,7 +28,10 @@ export const logInController = async (req: Request, res: Response) => {
       });
     }
 
-    const isMatch = await bcrypt.compare(password, isExistingUser.password);
+    const isMatch = await bcrypt.compare(
+      password,
+      isExistingUser.password,
+    );
 
     if (!isMatch) {
       return res.status(401).json({
@@ -41,7 +50,7 @@ export const logInController = async (req: Request, res: Response) => {
         role: isExistingUser.role,
       },
       process.env.JWT_SECRET as string,
-      { expiresIn: "3d" }
+      { expiresIn: "3d" },
     );
 
     // res.cookie("token", token, {
@@ -51,11 +60,11 @@ export const logInController = async (req: Request, res: Response) => {
     //   maxAge: 3 * 24 * 60 * 60 * 1000,
     // });
 
-    
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      sameSite:
+        process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 3 * 24 * 60 * 60 * 1000,
     });
 
@@ -80,7 +89,10 @@ export const logInController = async (req: Request, res: Response) => {
   }
 };
 
-export const SignUpController = async (req: Request, res: Response) => {
+export const SignUpController = async (
+  req: Request,
+  res: Response,
+) => {
   try {
     const {
       address,
@@ -92,8 +104,6 @@ export const SignUpController = async (req: Request, res: Response) => {
       password,
       phone,
     } = req.body;
-
-   
 
     if (
       !address ||
@@ -109,8 +119,6 @@ export const SignUpController = async (req: Request, res: Response) => {
       });
     }
 
-    
-
     if (password !== confirmPassword) {
       return res.status(400).json({
         success: false,
@@ -118,10 +126,7 @@ export const SignUpController = async (req: Request, res: Response) => {
       });
     }
 
-
     const isExistingUser = await findByEmail(email);
-
-  
 
     if (isExistingUser) {
       return res.status(400).json({
@@ -130,11 +135,7 @@ export const SignUpController = async (req: Request, res: Response) => {
       });
     }
 
-   
-
     const hashedPassword = await bcrypt.hash(confirmPassword, 12);
-
-   
 
     const payload = {
       firstName: firstName,
@@ -149,14 +150,15 @@ export const SignUpController = async (req: Request, res: Response) => {
       role: "customer",
     };
 
-    
-
     const result = await Createuser(payload);
 
     if (!result) {
       res
         .status(403)
-        .json({ success: false, message: "User not created successfully" });
+        .json({
+          success: false,
+          message: "User not created successfully",
+        });
     }
 
     return res.status(201).json({
@@ -165,15 +167,23 @@ export const SignUpController = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message, error: err });
+    res
+      .status(500)
+      .json({ success: false, message: err.message, error: err });
   }
 };
 
-export const getMeController = async (req: Request, res: Response) => {
+export const getMeController = async (
+  req: Request,
+  res: Response,
+) => {
   try {
     const token = req.cookies.token;
 
-    console.log(token)
+    console.log({
+      token: token,
+      msg: "logging token from get me controller",
+    });
 
     if (!token) {
       return res.status(401).json({
@@ -210,23 +220,19 @@ export const getMeController = async (req: Request, res: Response) => {
       createdAt: user?.createdAt,
     };
 
-
-
-
-
     res.status(200).json({
       success: true,
       message: "User founded",
       data: sendingPayload,
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message, error: err });
+    res
+      .status(500)
+      .json({ success: false, message: err.message, error: err });
   }
 };
 
-
-
-export const logOutController = (req:Request, res:Response)=>{
+export const logOutController = (req: Request, res: Response) => {
   res.clearCookie("token", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -237,4 +243,4 @@ export const logOutController = (req:Request, res:Response)=>{
     success: true,
     message: "Logged out successfully",
   });
-}
+};
