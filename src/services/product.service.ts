@@ -88,17 +88,22 @@ export const primaryDeleteProductService = async (
   query: any,
   user: any,
 ) => {
+  const product = await productCollection.findOne({
+    _id: query._id,
+  });
+
+  await adminActivityCollection.insertOne({
+    ...user,
+    activityOn: "product",
+    productSlug: product?.slug,
+    activityType: "delete",
+  });
+
   const result = await productCollection.findOneAndUpdate(
     query,
     { $set: { isDelete: true, deletedAt: new Date() } },
     { returnDocument: "after" },
   );
-
-  await adminActivityCollection.insertOne({
-    ...user,
-    activityOn: "product",
-    activityType: "delete",
-  });
 
   return result;
 };
@@ -107,17 +112,18 @@ export const productUpdateService = async (
   query: any,
   payload: any,
 ) => {
+  await adminActivityCollection.insertOne({
+    ...payload.user,
+    activityOn: "product",
+    productSlug: payload.slug,
+    activityType: "update",
+  });
+
   const result = await productCollection.findOneAndUpdate(
     query,
     { $set: payload },
     { returnDocument: "after" },
   );
-
-  await adminActivityCollection.insertOne({
-    ...payload.user,
-    activityOn: "product",
-    activityType: "update",
-  });
 
   return result;
 };

@@ -110,7 +110,9 @@ export async function CreateOrderService(payload: any) {
     };
   });
 
-  const errorItem = finalProducts.find((item: any) => item.success === false);
+  const errorItem = finalProducts.find(
+    (item: any) => item.success === false,
+  );
 
   if (errorItem) {
     return {
@@ -364,10 +366,12 @@ export async function getSingleOrder(query: any) {
 export const updateSingleOrder = async (query: any, payload: any) => {
   const { _id, ...updateData } = payload;
 
-  console.log(updateData);
-
   await adminActivityCollection.insertOne({
     ...updateData.user,
+    customerName: updateData.customerInfo.fullName,
+    customerPhone: updateData.customerInfo.phone,
+    customerEmail: updateData.customerInfo.email,
+    customerAddress: updateData.customerInfo.address,
     activityOn: "order",
     activityType: "update",
   });
@@ -677,13 +681,19 @@ export const topSellingProduct = async () => {
 };
 
 export const deleteOrderServer = async (query: any, payload: any) => {
-  const deleteOrder = await createOrderCollection.deleteOne(query);
+  const order = await createOrderCollection.findOne(query);
 
   await adminActivityCollection.insertOne({
     ...payload.user,
+    customerName: order?.customerInfo.fullName,
+    customerPhone: order?.customerInfo.phone,
+    customerEmail: order?.customerInfo.email,
+    customerAddress: order?.customerInfo.address,
     activityOn: "order",
     activityType: "delete",
   });
+
+  const deleteOrder = await createOrderCollection.deleteOne(query);
 
   return deleteOrder;
 };

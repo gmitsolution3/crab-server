@@ -176,11 +176,6 @@ export const getMeController = async (
   try {
     const token = req.cookies.token;
 
-    console.log({
-      token: token,
-      msg: "logging token from get me controller",
-    });
-
     if (!token) {
       return res.status(401).json({
         success: false,
