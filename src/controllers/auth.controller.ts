@@ -173,6 +173,8 @@ export const getMeController = async (req: Request, res: Response) => {
   try {
     const token = req.cookies.token;
 
+    console.log(token)
+
     if (!token) {
       return res.status(401).json({
         success: false,
