@@ -217,8 +217,6 @@ export const restoreProductController = async (
 ) => {
   const { id } = req.params;
 
-  console.log({ id: id });
-
   try {
     const query = { _id: new ObjectId(id) };
 

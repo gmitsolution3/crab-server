@@ -79,8 +79,6 @@ export const resendOTPService = async (orderId: string) => {
 
   const reSendOTP = await storeOTPForOrder(payload);
 
-  console.log({ result: reSendOTP });
-
   if (!reSendOTP.success) {
     return { success: false, message: "Something was wrong!!" };
   }

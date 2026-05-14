@@ -12,6 +12,7 @@ import courierRoute from "./routes/courier.route";
 import ipRouter from "./routes/getIp.route";
 import statisticsRoute from "./routes/statistics.route";
 import otpRouter from "./routes/otp.route";
+import homeRoute from "./routes/home.route"
 import paymentRoute from "./routes/payment.route";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -38,6 +39,9 @@ app.use(
   }),
 );
 app.use(cookieParser());
+
+// home data route
+app.use("/api/v1/home", homeRoute);
 
 app.use("/api/products", productRoute);
 
